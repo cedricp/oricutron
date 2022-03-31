@@ -81,7 +81,7 @@ extern SDL_bool refreshstatus;
 
 static char distmp[128];
 static unsigned short disaddrs[10];
-static char ibuf[128], lastcmd;
+static char ibuf[128], lastcmd, lastsubcmd = 0;
 static char history[10][128];
 static int ilen, iloff=0, cursx, histu=0, histp=-1;
 static unsigned short mon_addr, mon_asmmode = SDL_FALSE;
@@ -2997,7 +2997,7 @@ SDL_bool mon_cmd( char *cmd, struct machine *oric, SDL_bool *needrender )
 
         case 'p':
         {
-          lastcmd = 0;
+          lastsubcmd = cmd[i++];
 
           int lines = 0;
           char tmp[16];
@@ -3962,11 +3962,12 @@ static SDL_bool mon_console_keydown( SDL_Event *ev, struct machine *oric, SDL_bo
           case 'm':
           case 'd':
             ibuf[cursx++] = lastcmd;
-            ibuf[cursx] = 0;
-            ilen = 1;
+            ibuf[cursx++] = lastsubcmd;
+            ilen = lastsubcmd ? 2 : 1;
             break;
         }
       } else {
+        lastsubcmd = 0;
         if( ( histu > 0 ) && ( strcmp( &history[0][0], ibuf ) == 0 ) )
         {
         } else {
